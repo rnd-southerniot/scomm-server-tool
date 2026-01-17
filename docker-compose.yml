@@ -98,6 +98,10 @@ services:
     restart: unless-stopped
     command:
       - "--endpoint=tcp://mqtt:1883"
+    environment:
+      MQTT_USER: ${MQTT_USERNAME:-}
+      MQTT_PASS: ${MQTT_PASSWORD:-}
+      MQTT_CLIENT_ID: ${MQTT_EXPORTER_CLIENT_ID:-mosquitto_exporter}
     ports:
       - "9234:9234"
     depends_on: [mqtt]
