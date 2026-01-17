@@ -54,6 +54,22 @@ Start the full stack:
 docker compose up -d
 ```
 
+Optional: ChirpStack Explorer UI
+
+This repo can run an optional “ChirpStack Explorer” container as the `chirpstack_explorer` service, but **you must provide a real image** (e.g., a registry tag). The default image name (`chirpstack-tenants-dashboard-chirpstack-explorer`) only exists if you built it locally.
+
+1) Set the required env vars in `.env` (do not commit secrets):
+   - `CHIRPSTACK_EXPLORER_IMAGE`
+   - `CHIRPSTACK_EXPLORER_BASE_URL` (usually `http://127.0.0.1:8090` on the VM if ChirpStack REST API is local)
+   - `CHIRPSTACK_EXPLORER_TOKEN`
+   - `CHIRPSTACK_EXPLORER_SESSION_SECRET`
+
+2) Start it:
+
+```bash
+docker compose --profile explorer up -d chirpstack_explorer
+```
+
 If you want host-level metrics on Linux, enable the optional profile:
 
 ```bash

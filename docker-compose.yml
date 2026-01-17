@@ -107,3 +107,21 @@ services:
       - "9234:9234"
     depends_on: [mqtt]
     networks: [scomm]
+
+  chirpstack_explorer:
+    # Optional UI for ChirpStack (from your `chirpstack-tenants-dashboard` build).
+    # Recommended: override image to a real registry tag for VM deployments.
+    profiles: ["explorer"]
+    image: ${CHIRPSTACK_EXPLORER_IMAGE:-chirpstack-tenants-dashboard-chirpstack-explorer}
+    restart: unless-stopped
+    environment:
+      CHIRPSTACK_BASE_URL: ${CHIRPSTACK_EXPLORER_BASE_URL:-http://localhost:8090}
+      CHIRPSTACK_TOKEN: ${CHIRPSTACK_EXPLORER_TOKEN:-}
+      APP_USERNAME: ${CHIRPSTACK_EXPLORER_APP_USERNAME:-admin}
+      APP_PASSWORD: ${CHIRPSTACK_EXPLORER_APP_PASSWORD:-}
+      SESSION_SECRET: ${CHIRPSTACK_EXPLORER_SESSION_SECRET:-change-this-to-a-long-random-string}
+      PORT: "3000"
+      NODE_ENV: production
+    ports:
+      - "${CHIRPSTACK_EXPLORER_BIND_ADDR:-0.0.0.0}:${CHIRPSTACK_EXPLORER_PORT:-3002}:3000"
+    networks: [scomm]
