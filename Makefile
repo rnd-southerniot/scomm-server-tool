@@ -10,6 +10,10 @@ up-explorer:
 build-explorer:
 	docker compose --profile explorer build chirpstack_explorer
 
+rebuild-explorer:
+	docker compose --profile explorer build --no-cache chirpstack_explorer
+	docker compose --profile explorer up -d chirpstack_explorer
+
 up-host-metrics:
 	docker compose --profile host-metrics up -d node_exporter
 
