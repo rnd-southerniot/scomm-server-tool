@@ -67,12 +67,21 @@ services:
   postgres_exporter:
     image: prometheuscommunity/postgres-exporter
     restart: unless-stopped
-    environment:
-      DATA_SOURCE_NAME: "postgresql://${CS_POSTGRES_USER:-chirpstack}:${CS_POSTGRES_PASSWORD:-chirpstack}@postgres:5432/${CS_POSTGRES_DB:-chirpstack}?sslmode=disable"
+    entrypoint:
+      - "sh"
+      - "-c"
+    command:
+      - >
+        export DATA_SOURCE_NAME="postgresql://$(cat /run/secrets/postgres_user):$(cat /run/secrets/postgres_password)@postgres:5432/$(cat /run/secrets/postgres_db)?sslmode=disable";
+        exec /bin/postgres_exporter
     ports:
       - "9187:9187"
     depends_on: [postgres]
     networks: [scomm]
+    secrets:
+      - postgres_user
+      - postgres_password
+      - postgres_db
 
   redis_exporter:
     image: oliver006/redis_exporter
@@ -104,12 +113,32 @@ services:
     restart: unless-stopped
     environment:
       CHIRPSTACK_BASE_URL: ${CHIRPSTACK_EXPLORER_BASE_URL:-http://localhost:8090}
-      CHIRPSTACK_TOKEN: ${CHIRPSTACK_EXPLORER_TOKEN:-}
       APP_USERNAME: ${CHIRPSTACK_EXPLORER_APP_USERNAME:-admin}
-      APP_PASSWORD: ${CHIRPSTACK_EXPLORER_APP_PASSWORD:-}
-      SESSION_SECRET: ${CHIRPSTACK_EXPLORER_SESSION_SECRET:-change-this-to-a-long-random-string}
+      CHIRPSTACK_TOKEN_FILE: /run/secrets/chirpstack_explorer_token
+      APP_PASSWORD_FILE: /run/secrets/chirpstack_explorer_app_password
+      SESSION_SECRET_FILE: /run/secrets/chirpstack_explorer_session_secret
       PORT: "3000"
       NODE_ENV: production
+    secrets:
+      - chirpstack_explorer_token
+      - chirpstack_explorer_app_password
+      - chirpstack_explorer_session_secret
     ports:
       - "${CHIRPSTACK_EXPLORER_BIND_ADDR:-0.0.0.0}:${CHIRPSTACK_EXPLORER_PORT:-3002}:3000"
     networks: [scomm]
+
+secrets:
+  chirpstack_explorer_token:
+    file: ./secrets/chirpstack_explorer_token
+  chirpstack_explorer_app_password:
+    file: ./secrets/chirpstack_explorer_app_password
+  chirpstack_explorer_session_secret:
+    file: ./secrets/chirpstack_explorer_session_secret
+  postgres_password:
+    file: ./secrets/postgres_password
+  postgres_user:
+    file: ./secrets/postgres_user
+  postgres_db:
+    file: ./secrets/postgres_db
+  grafana_admin_password:
+    file: ./secrets/grafana_admin_password

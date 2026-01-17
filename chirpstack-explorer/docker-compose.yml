@@ -7,8 +7,20 @@ services:
     environment:
       PORT: "3000"
       CHIRPSTACK_BASE_URL: "http://10.10.8.50:8090"
-      CHIRPSTACK_TOKEN: "${CHIRPSTACK_TOKEN}"
       APP_USERNAME: "${APP_USERNAME:-admin}"
-      APP_PASSWORD: "${APP_PASSWORD:-change-me}"
-      SESSION_SECRET: "${SESSION_SECRET:-change-this}"
+      CHIRPSTACK_TOKEN_FILE: /run/secrets/chirpstack_explorer_token
+      APP_PASSWORD_FILE: /run/secrets/chirpstack_explorer_app_password
+      SESSION_SECRET_FILE: /run/secrets/chirpstack_explorer_session_secret
+    secrets:
+      - chirpstack_explorer_token
+      - chirpstack_explorer_app_password
+      - chirpstack_explorer_session_secret
     restart: unless-stopped
+
+secrets:
+  chirpstack_explorer_token:
+    file: ../secrets/chirpstack_explorer_token
+  chirpstack_explorer_app_password:
+    file: ../secrets/chirpstack_explorer_app_password
+  chirpstack_explorer_session_secret:
+    file: ../secrets/chirpstack_explorer_session_secret

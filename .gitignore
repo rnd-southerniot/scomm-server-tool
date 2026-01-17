@@ -2,3 +2,5 @@
 .env
 *.zip
 node_modules
+secrets/
+data-plane/mqtt/passwords

@@ -2,16 +2,31 @@
 const express = require("express");
 const session = require("express-session");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const CHIRPSTACK_BASE_URL = process.env.CHIRPSTACK_BASE_URL || "http://10.10.8.50:8090";
-const CHIRPSTACK_TOKEN = process.env.CHIRPSTACK_TOKEN;
+
+function readSecret(envKey, fileEnvKey, fallback) {
+  const direct = process.env[envKey];
+  if (direct) return direct;
+  const filePath = process.env[fileEnvKey];
+  if (!filePath) return fallback;
+  try {
+    return fs.readFileSync(filePath, "utf8").trim();
+  } catch (err) {
+    console.error(`ERROR: Failed to read ${fileEnvKey} from ${filePath}: ${err.message}`);
+    return fallback;
+  }
+}
+
+const CHIRPSTACK_TOKEN = readSecret("CHIRPSTACK_TOKEN", "CHIRPSTACK_TOKEN_FILE");
 
 const APP_USERNAME = process.env.APP_USERNAME || "admin";
-const APP_PASSWORD = process.env.APP_PASSWORD || "admin";
-const SESSION_SECRET = process.env.SESSION_SECRET || "change-me";
+const APP_PASSWORD = readSecret("APP_PASSWORD", "APP_PASSWORD_FILE", "admin");
+const SESSION_SECRET = readSecret("SESSION_SECRET", "SESSION_SECRET_FILE", "change-me");
 
 if (!CHIRPSTACK_TOKEN) {
   console.error("ERROR: CHIRPSTACK_TOKEN is not set.");

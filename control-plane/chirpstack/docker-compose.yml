@@ -2,9 +2,18 @@ services:
   postgres:
     image: postgres:14-alpine
     environment:
-      POSTGRES_DB: ${CS_POSTGRES_DB:-chirpstack}
-      POSTGRES_USER: ${CS_POSTGRES_USER:-chirpstack}
-      POSTGRES_PASSWORD: ${CS_POSTGRES_PASSWORD:-chirpstack}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    entrypoint:
+      - "sh"
+      - "-c"
+      - >
+        export POSTGRES_DB="$(cat /run/secrets/postgres_db)";
+        export POSTGRES_USER="$(cat /run/secrets/postgres_user)";
+        exec docker-entrypoint.sh postgres
+    secrets:
+      - postgres_password
+      - postgres_user
+      - postgres_db
     volumes:
       - pg_data:/var/lib/postgresql/data
     ports:
@@ -32,6 +41,18 @@ services:
       - "${CS_HTTP_BIND_ADDR:-0.0.0.0}:${CS_HTTP_PORT:-8090}:8080"
     volumes:
       - ./config/chirpstack.toml:/etc/chirpstack/chirpstack.toml:ro
+    command:
+      - "sh"
+      - "-c"
+      - >
+        export CS_POSTGRES_DB="$(cat /run/secrets/postgres_db)";
+        export CS_POSTGRES_USER="$(cat /run/secrets/postgres_user)";
+        export CS_POSTGRES_PASSWORD="$(cat /run/secrets/postgres_password)";
+        exec /usr/bin/chirpstack
+    secrets:
+      - postgres_password
+      - postgres_user
+      - postgres_db
 
   gateway_bridge:
     image: chirpstack/chirpstack-gateway-bridge:4
