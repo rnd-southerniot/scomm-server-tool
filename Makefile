@@ -6,3 +6,6 @@ down:
 
 logs:
 	docker compose logs -f
+
+preflight:
+	./scripts/preflight.sh

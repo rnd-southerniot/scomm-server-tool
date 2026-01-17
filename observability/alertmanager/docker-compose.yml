@@ -1,11 +1,9 @@
-version: "3.9"
-
 services:
   alertmanager:
     image: prom/alertmanager:latest
     restart: unless-stopped
     ports:
-      - "${ALERTMGR_PORT:-9093}:9093"
+      - "${ALERTMGR_BIND_ADDR:-0.0.0.0}:${ALERTMGR_PORT:-9093}:9093"
     volumes:
       - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
     command:
