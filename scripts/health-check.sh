@@ -30,3 +30,6 @@ curl -sf http://127.0.0.1:9121/metrics >/dev/null && echo OK
 
 printf 'Mosquitto exporter: '
 curl -sf http://127.0.0.1:9234/metrics >/dev/null && echo OK
+
+printf 'Explorer: '
+curl -sf http://127.0.0.1:3002/ >/dev/null && echo OK
