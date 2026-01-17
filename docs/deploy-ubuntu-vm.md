@@ -129,6 +129,15 @@ make preflight
 
 Postgres backups run nightly to `/srv/backups` via `scripts/backup-postgres.sh` (cron installed at `/etc/cron.d/scomm-postgres-backup`).
 
+## 8) Rotate secrets
+
+Update secret files under `secrets/` and the MQTT password file, then restart:
+
+```bash
+docker compose -f docker-compose.yml up -d
+docker compose --profile explorer up -d chirpstack_explorer
+```
+
 ## Ports to consider
 
 Only expose what you need:

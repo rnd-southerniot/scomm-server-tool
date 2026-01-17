@@ -48,6 +48,14 @@ chmod 640 data-plane/mqtt/passwords
 
 Postgres backups run nightly to `/srv/backups` via `scripts/backup-postgres.sh` (cron is installed at `/etc/cron.d/scomm-postgres-backup`).
 
+### Secrets Rotation
+Rotate secrets by updating files under `secrets/` (and `data-plane/mqtt/passwords`), then restart services:
+
+```bash
+docker compose -f docker-compose.yml up -d
+docker compose --profile explorer up -d chirpstack_explorer
+```
+
 Deploying to an Ubuntu VM: see `docs/deploy-ubuntu-vm.md:1`.
 
 Optional services:
