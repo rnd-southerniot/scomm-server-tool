@@ -1,0 +1,42 @@
+groups:
+  - name: scomm-infra
+    rules:
+      - alert: HostHighCPU
+        expr: avg(rate(node_cpu_seconds_total{mode!="idle"}[5m])) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on SCOMM host"
+
+      - alert: DiskUsageHigh
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes > 0.8
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk usage above 80%"
+
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+
+      - alert: MQTTNoClients
+        expr: mqtt_clients_connected == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No MQTT clients connected"

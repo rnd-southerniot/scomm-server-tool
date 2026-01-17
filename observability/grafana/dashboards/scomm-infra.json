@@ -1,0 +1,40 @@
+{
+  "uid": "scomm-infra",
+  "title": "SCOMM – Infrastructure Health",
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "CPU Usage",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "avg(rate(node_cpu_seconds_total{mode!='idle'}[1m])) * 100", "datasource": "Prometheus" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Free Disk (%)",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "100 - ((node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100)", "datasource": "Prometheus" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "MQTT Clients",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "mqtt_clients_connected", "datasource": "Prometheus" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Postgres Connections",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "pg_stat_activity_count", "datasource": "Prometheus" }
+      ]
+    }
+  ]
+}

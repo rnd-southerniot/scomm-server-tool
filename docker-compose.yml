@@ -65,3 +65,47 @@ services:
       service: grafana
     depends_on: [prometheus]
     networks: [scomm]
+
+  node_exporter:
+    image: prom/node-exporter:latest
+    # Optional: host-level metrics exporter (works best on Linux).
+    # On Docker Desktop (macOS/Windows), mount propagation options can fail.
+    profiles: ["host-metrics"]
+    restart: unless-stopped
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - /:/host:ro
+    ports:
+      - "9100:9100"
+    networks: [scomm]
+
+  postgres_exporter:
+    image: prometheuscommunity/postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "postgresql://${CS_POSTGRES_USER:-chirpstack}:${CS_POSTGRES_PASSWORD:-chirpstack}@postgres:5432/${CS_POSTGRES_DB:-chirpstack}?sslmode=disable"
+    ports:
+      - "9187:9187"
+    depends_on: [postgres]
+    networks: [scomm]
+
+  redis_exporter:
+    image: oliver006/redis_exporter
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: redis:6379
+    ports:
+      - "9121:9121"
+    depends_on: [redis]
+    networks: [scomm]
+
+  mosquitto_exporter:
+    image: sapcc/mosquitto-exporter
+    restart: unless-stopped
+    command:
+      - "--endpoint=tcp://mqtt:1883"
+    ports:
+      - "9234:9234"
+    depends_on: [mqtt]
+    networks: [scomm]
