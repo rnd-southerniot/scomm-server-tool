@@ -30,3 +30,6 @@ logs:
 
 preflight:
 	./scripts/preflight.sh
+
+health:
+	./scripts/health-check.sh
