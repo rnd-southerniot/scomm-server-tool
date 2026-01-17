@@ -1,17 +1,67 @@
 version: "3.9"
 
-services:
-  mqtt:
-    image: eclipse-mosquitto:2
-    ports:
-      - "1883:1883"
+name: scomm-server-tool
 
+networks:
+  scomm:
+    driver: bridge
+
+volumes:
+  pg_data:
+  redis_data:
+  grafana_data:
+
+services:
+  # --- Data plane ---
+  mqtt:
+    extends:
+      file: data-plane/mqtt/docker-compose.yml
+      service: mqtt
+    networks: [scomm]
+
+  # --- Control plane ---
+  postgres:
+    extends:
+      file: control-plane/chirpstack/docker-compose.yml
+      service: postgres
+    networks: [scomm]
+
+  redis:
+    extends:
+      file: control-plane/chirpstack/docker-compose.yml
+      service: redis
+    networks: [scomm]
+
+  chirpstack:
+    extends:
+      file: control-plane/chirpstack/docker-compose.yml
+      service: chirpstack
+    depends_on: [postgres, redis, mqtt]
+    networks: [scomm]
+
+  gateway_bridge:
+    extends:
+      file: control-plane/chirpstack/docker-compose.yml
+      service: gateway_bridge
+    depends_on: [mqtt]
+    networks: [scomm]
+
+  # --- Observability ---
   prometheus:
-    image: prom/prometheus
-    ports:
-      - "9090:9090"
+    extends:
+      file: observability/prometheus/docker-compose.yml
+      service: prometheus
+    networks: [scomm]
+
+  alertmanager:
+    extends:
+      file: observability/alertmanager/docker-compose.yml
+      service: alertmanager
+    networks: [scomm]
 
   grafana:
-    image: grafana/grafana
-    ports:
-      - "3000:3000"
+    extends:
+      file: observability/grafana/docker-compose.yml
+      service: grafana
+    depends_on: [prometheus]
+    networks: [scomm]

@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  # ChirpStack does not expose Prometheus metrics by default unless enabled or wrapped.
+  # Keep placeholders and add exporters as you adopt them.
+
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  # Example: Node exporter (if you add it later)
+  # - job_name: "node"
+  #   static_configs:
+  #     - targets: ["node-exporter:9100"]
+
+  # Example: Mosquitto exporter (if you add it later)
+  # - job_name: "mqtt"
+  #   static_configs:
+  #     - targets: ["mosquitto-exporter:9234"]

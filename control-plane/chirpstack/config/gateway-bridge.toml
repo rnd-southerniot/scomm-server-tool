@@ -1,0 +1,8 @@
+[integration.mqtt]
+event_topic_template="gateway/{{gateway_id}}/event/{{event}}"
+state_topic_template="gateway/{{gateway_id}}/state/{{state}}"
+command_topic_template="gateway/{{gateway_id}}/command/{{command}}"
+server="tcp://mqtt:1883"
+
+[backend.semtech_udp]
+udp_bind="0.0.0.0:1700"

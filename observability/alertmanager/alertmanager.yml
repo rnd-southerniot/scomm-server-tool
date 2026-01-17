@@ -1,0 +1,9 @@
+route:
+  receiver: "default"
+
+receivers:
+  - name: "default"
+    # Add Slack/Email/SMS later
+    # slack_configs:
+    # - api_url: "https://hooks.slack.com/services/..."
+    #   channel: "#alerts"

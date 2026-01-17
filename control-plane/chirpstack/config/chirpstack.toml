@@ -1,0 +1,30 @@
+# ChirpStack v4 configuration (minimal, production-friendly baseline)
+
+[postgresql]
+dsn="postgres://${CS_POSTGRES_USER:-chirpstack}:${CS_POSTGRES_PASSWORD:-chirpstack}@postgres:5432/${CS_POSTGRES_DB:-chirpstack}?sslmode=disable"
+
+[redis]
+servers=["redis:6379"]
+
+[api]
+bind="0.0.0.0:8080"
+# If you later place behind reverse proxy, set external URL there.
+
+[integration]
+enabled=["mqtt"]
+
+[integration.mqtt]
+server="tcp://mqtt:1883"
+# username=""
+# password=""
+# Clean default topics:
+event_topic_template="application/{{application_id}}/device/{{dev_eui}}/event/{{event}}"
+command_topic_template="application/{{application_id}}/device/{{dev_eui}}/command/{{command}}"
+
+[gateway]
+backend="mqtt"
+
+[gateway.mqtt]
+server="tcp://mqtt:1883"
+# username=""
+# password=""
