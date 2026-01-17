@@ -1,0 +1,7 @@
+sequenceDiagram
+Device->>Gateway: Uplink
+Gateway->>ChirpStack: Forward
+ChirpStack->>MQTT: Publish
+MQTT->>Processor: Consume
+Processor->>Storage: Write
+Storage->>Grafana: Visualize
