@@ -1,0 +1,15 @@
+services:
+  chirpstack:
+    extends:
+      file: control-plane/chirpstack/docker-compose.yml
+      service: chirpstack
+    depends_on: [postgres, redis, mqtt]
+    networks: [scomm]
+
+  gateway_bridge:
+    extends:
+      file: control-plane/chirpstack/docker-compose.yml
+      service: gateway_bridge
+    depends_on: [mqtt]
+    networks: [scomm]
+

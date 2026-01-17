@@ -48,10 +48,16 @@ If this VM will run ChirpStack and you’ll access it remotely:
 
 ## 5) Start the stack
 
-Start the full stack:
+Start the base stack:
 
 ```bash
 docker compose up -d
+```
+
+To also run ChirpStack + Gateway Bridge on this VM:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.chirpstack.yml up -d
 ```
 
 Optional: ChirpStack Explorer UI
