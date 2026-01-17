@@ -82,6 +82,13 @@ If you want host-level metrics on Linux, enable the optional profile:
 docker compose --profile host-metrics up -d node_exporter
 ```
 
+Makefile equivalents:
+
+```bash
+make up-explorer
+make up-host-metrics
+```
+
 ## 6) Verify
 
 ```bash

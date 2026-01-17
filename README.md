@@ -28,5 +28,6 @@ Deploying to an Ubuntu VM: see `docs/deploy-ubuntu-vm.md:1`.
 
 Optional services:
 - ChirpStack Explorer UI: `docker compose --profile explorer up -d chirpstack_explorer` (configure via `.env.example`).
+- Host metrics exporter (Linux): `docker compose --profile host-metrics up -d node_exporter`.
 
 See /docs for full architecture and runbooks.
