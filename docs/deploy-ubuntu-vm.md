@@ -46,6 +46,29 @@ If this VM will run ChirpStack and you’ll access it remotely:
 - Set `CS_HTTP_BIND_ADDR=0.0.0.0` and choose `CS_HTTP_PORT` as desired.
 - Open `CS_GWB_UDP_PORT` (default `1700/udp`) if you have gateways.
 
+## 4.1) Create secrets (Phase 0 hardening)
+
+This stack uses file-based Docker secrets. Create these files on the VM and **do not commit them**:
+
+```
+secrets/chirpstack_explorer_token
+secrets/chirpstack_explorer_app_password
+secrets/chirpstack_explorer_session_secret
+secrets/postgres_password
+secrets/postgres_user
+secrets/postgres_db
+secrets/grafana_admin_password
+```
+
+MQTT auth is enabled. Create the password file:
+
+```bash
+docker run --rm -v "$PWD/data-plane/mqtt:/mosquitto/config" eclipse-mosquitto:2 \
+  mosquitto_passwd -b /mosquitto/config/passwords <user> <password>
+chown 1883:1883 data-plane/mqtt/passwords
+chmod 640 data-plane/mqtt/passwords
+```
+
 ## 5) Start the stack
 
 Start the base stack:
@@ -101,6 +124,10 @@ Optional preflight (prints published ports from the rendered config):
 ```bash
 make preflight
 ```
+
+## 7) Backups
+
+Postgres backups run nightly to `/srv/backups` via `scripts/backup-postgres.sh` (cron installed at `/etc/cron.d/scomm-postgres-backup`).
 
 ## Ports to consider
 
