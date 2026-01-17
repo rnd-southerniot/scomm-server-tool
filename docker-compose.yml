@@ -96,9 +96,11 @@ services:
 
   chirpstack_explorer:
     # Optional UI for ChirpStack (from your `chirpstack-tenants-dashboard` build).
-    # Recommended: override image to a real registry tag for VM deployments.
     profiles: ["explorer"]
-    image: ${CHIRPSTACK_EXPLORER_IMAGE:-chirpstack-tenants-dashboard-chirpstack-explorer}
+    build:
+      context: ./chirpstack-explorer
+      dockerfile: Dockerfile
+    image: ${CHIRPSTACK_EXPLORER_IMAGE:-chirpstack-explorer:local}
     restart: unless-stopped
     environment:
       CHIRPSTACK_BASE_URL: ${CHIRPSTACK_EXPLORER_BASE_URL:-http://localhost:8090}

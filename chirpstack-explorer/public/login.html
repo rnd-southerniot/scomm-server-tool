@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 24px; max-width: 420px; }
+    input, button { padding: 10px; width: 100%; margin: 8px 0; }
+    .err { color: #b00020; background: #fff1f1; padding: 10px; border-radius: 8px; display:none; }
+  </style>
+</head>
+<body>
+  <h2>ChirpStack Explorer Login</h2>
+  <div class="err" id="err"></div>
+
+  <input id="u" placeholder="Username" />
+  <input id="p" placeholder="Password" type="password" />
+  <button id="btn">Login</button>
+
+  <script>
+    const err = document.getElementById("err");
+    document.getElementById("btn").onclick = async () => {
+      err.style.display = "none";
+      const username = document.getElementById("u").value.trim();
+      const password = document.getElementById("p").value;
+
+      const r = await fetch("/auth/login", {
+        method: "POST",
+        headers: {"Content-Type":"application/x-www-form-urlencoded"},
+        body: new URLSearchParams({ username, password })
+      });
+
+      if (r.ok) location.href = "/app.html";
+      else {
+        const j = await r.json().catch(()=>({}));
+        err.textContent = j.error || "Login failed";
+        err.style.display = "block";
+      }
+    };
+
+    fetch("/auth/me").then(r=>r.json()).then(x=>{
+      if (x.user) location.href = "/app.html";
+    });
+  </script>
+</body>
+</html>

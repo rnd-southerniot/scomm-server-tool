@@ -1,0 +1,14 @@
+{
+  "name": "chirpstack-tenants-test",
+  "version": "1.1.0",
+  "private": true,
+  "main": "server.cjs",
+  "scripts": {
+    "start": "node server.cjs"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-session": "^1.17.3"
+  }
+}
+
