@@ -17,6 +17,22 @@ groups:
         annotations:
           summary: "Disk usage above 80%"
 
+      - alert: DiskUsageCritical
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes > 0.9
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Disk usage above 90%"
+
+      - alert: HostHighMemory
+        expr: (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) < 0.15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Memory available below 15%"
+
       - alert: PostgresDown
         expr: pg_up == 0
         for: 1m
@@ -40,3 +56,11 @@ groups:
           severity: warning
         annotations:
           summary: "No MQTT clients connected"
+
+      - alert: ScrapeTargetDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus target down ({{ $labels.job }} / {{ $labels.instance }})"

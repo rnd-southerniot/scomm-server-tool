@@ -51,7 +51,7 @@ services:
     networks: [scomm]
 
   node_exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter@sha256:3ac34ce007accad95afed72149e0d2b927b7e42fd1c866149b945b84737c62c3
     # Optional: host-level metrics exporter (works best on Linux).
     # On Docker Desktop (macOS/Windows), mount propagation options can fail.
     profiles: ["host-metrics"]
@@ -65,7 +65,7 @@ services:
     networks: [scomm]
 
   postgres_exporter:
-    image: prometheuscommunity/postgres-exporter
+    image: prometheuscommunity/postgres-exporter@sha256:fb96c4413985d4b23ab02b19022b3d70a86c8e0a62f41ab15ebb6f4673781a5d
     restart: unless-stopped
     entrypoint:
       - "sh"
@@ -84,7 +84,7 @@ services:
       - postgres_db
 
   redis_exporter:
-    image: oliver006/redis_exporter
+    image: oliver006/redis_exporter@sha256:bac9872da2b48e6eebbffb11517a5dcda59958eda51e1e4231eeb5dd516b4a5f
     restart: unless-stopped
     environment:
       REDIS_ADDR: redis:6379
@@ -94,7 +94,7 @@ services:
     networks: [scomm]
 
   mosquitto_exporter:
-    image: sapcc/mosquitto-exporter
+    image: sapcc/mosquitto-exporter@sha256:241570341cd144c27ca0952255a2726a4964b7397bfed93a98707b32eb06858c
     restart: unless-stopped
     command:
       - "--endpoint=tcp://mqtt:1883"

@@ -1,6 +1,6 @@
 services:
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana@sha256:2175aaa91c96733d86d31cf270d5310b278654b03f5718c59de12a865380a31f
     restart: unless-stopped
     ports:
       - "${GRAFANA_BIND_ADDR:-0.0.0.0}:${GRAFANA_PORT:-3000}:3000"
