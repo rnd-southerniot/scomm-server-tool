@@ -138,18 +138,24 @@ function renderList(items, type) {
     const li = document.createElement("li");
 
     if (type === "tenant") {
-      li.innerHTML = `<span class="link" data-tenant="${esc(it.id)}"><strong>${esc(it.name || "(no name)")}</strong></span>
-        <div class="muted">id: <code>${esc(it.id)}</code></div>`;
+      const tenantId = it.id || "";
+      const tenantName = it.name || "(no name)";
+      li.innerHTML = `<span class="link" data-tenant="${esc(tenantId)}"><strong>${esc(tenantName)}</strong> <span class="muted">(id: <code>${esc(tenantId)}</code>)</span></span>
+        <div class="muted">id: <code>${esc(tenantId)}</code></div>`;
     } else if (type === "app") {
-      li.innerHTML = `<span class="link" data-app="${esc(it.id)}"><strong>${esc(it.name || "(no name)")}</strong></span>
-        <div class="muted">id: <code>${esc(it.id)}</code></div>`;
+      const appId = it.id || "";
+      const appName = it.name || "(no name)";
+      li.innerHTML = `<span class="link" data-app="${esc(appId)}"><strong>${esc(appName)}</strong> <span class="muted">(id: <code>${esc(appId)}</code>)</span></span>
+        <div class="muted">id: <code>${esc(appId)}</code></div>`;
     } else if (type === "device") {
       const devEui = it.devEui || it.id || "";
-      li.innerHTML = `<span class="link" data-device="${esc(devEui)}"><strong>${esc(it.name || devEui)}</strong></span>
+      const devName = it.name || devEui;
+      li.innerHTML = `<span class="link" data-device="${esc(devEui)}"><strong>${esc(devName)}</strong> <span class="muted">(id: <code>${esc(devEui)}</code>)</span></span>
         <div class="muted">devEui: <code>${esc(devEui)}</code></div>`;
     } else if (type === "gateway") {
       const gw = it.gatewayId || it.id || "";
-      li.innerHTML = `<span class="link" data-gateway="${esc(gw)}"><strong>${esc(it.name || gw)}</strong></span>
+      const gwName = it.name || gw;
+      li.innerHTML = `<span class="link" data-gateway="${esc(gw)}"><strong>${esc(gwName)}</strong> <span class="muted">(id: <code>${esc(gw)}</code>)</span></span>
         <div class="muted">gatewayId: <code>${esc(gw)}</code></div>`;
     }
 
