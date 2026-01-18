@@ -14,6 +14,15 @@ cp .env.example .env
 docker compose up -d
 ```
 
+Common commands:
+
+```bash
+make up
+make down
+make logs
+make health
+```
+
 To also run ChirpStack + Gateway Bridge locally:
 
 ```bash
@@ -62,7 +71,12 @@ docker compose --profile explorer up -d chirpstack_explorer
 ### Explorer Dashboard & Provisioning
 The Explorer UI runs at `http://<host>:3002` and supports:
 - Tenants, Applications, Devices, Gateways browsing.
-- Provisioning (Create Tenant/Application/Device Profile/Gateway/Device/Device Keys) via the Provision modal.
+- Provisioning via the Provision modal:
+  - Create Tenant: name, description
+  - Create Application: name (tenant is taken from selected tenant)
+  - Create Device Profile: name, region, LoRaWAN version
+  - Add Gateway: name, gateway EUI
+  - Add Device: name, devEUI, device profile ID, optional app key
 
 Requirements:
 - `CHIRPSTACK_EXPLORER_BASE_URL` points to ChirpStack REST API.
@@ -70,8 +84,41 @@ Requirements:
 
 Deploying to an Ubuntu VM: see `docs/deploy-ubuntu-vm.md:1`.
 
+### First-Run Verification
+- Grafana: `http://localhost:${GRAFANA_PORT:-3000}`
+- ChirpStack API: `http://localhost:8080`
+- Explorer UI: `http://localhost:3002`
+- MQTT: `localhost:1883`
+
 Optional services:
 - ChirpStack Explorer UI: `docker compose --profile explorer up -d chirpstack_explorer` (configure via `.env.example`).
 - Host metrics exporter (Linux): `docker compose --profile host-metrics up -d node_exporter`.
 
 See /docs for full architecture and runbooks.
+
+## Phase-Wise Upgrades & Improvements
+Phase 0: Hardening
+- Verify secrets are present and not committed (see `secrets/` list above).
+- Confirm MQTT passwords are set and permissions are correct.
+- Ensure backups are scheduled and landing in `/srv/backups`.
+
+Phase 1: Developer Experience
+- Prefer `make up/down/logs/health` for consistent local workflows.
+- Add `.env` overrides for ports if needed (see Quick Start).
+
+Phase 2: Provisioning UX
+- Select a tenant before creating applications, device profiles, or gateways.
+- Select an application before creating devices.
+- Use valid IDs: devEUI/gateway EUI are 16 hex chars; device profile ID is UUID.
+
+Phase 3: Observability
+- Validate Prometheus targets and Grafana dashboards after `make up`.
+- Enable `host-metrics` profile on Linux for host-level metrics.
+
+Phase 4: Security & Ops
+- Review exposed ports and bind services appropriately in `.env`.
+- Rotate secrets periodically and restart services after rotation.
+
+Phase 5: Deployment Scale
+- Use `docs/deploy-ubuntu-vm.md` for VM guidance and bind-address notes.
+- Document any site-specific overrides and keep them in `.env`.
