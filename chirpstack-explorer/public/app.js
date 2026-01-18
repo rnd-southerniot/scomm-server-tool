@@ -2,8 +2,11 @@ const statusEl = document.getElementById("status");
 const errEl = document.getElementById("err");
 const listEl = document.getElementById("list");
 const crumbsEl = document.getElementById("crumbs");
+const listTitleEl = document.getElementById("listTitle");
 
 const tenantsBtn = document.getElementById("tenantsBtn");
+const appsBtn = document.getElementById("appsBtn");
+const devicesBtn = document.getElementById("devicesBtn");
 const gatewaysBtn = document.getElementById("gatewaysBtn");
 const backBtn = document.getElementById("backBtn");
 const logoutBtn = document.getElementById("logoutBtn");
@@ -19,10 +22,21 @@ const detailsTitle = document.getElementById("detailsTitle");
 const kpis = document.getElementById("kpis");
 const samples = document.getElementById("samples");
 const jsonEl = document.getElementById("json");
+const kpiTenants = document.getElementById("kpiTenants");
+const kpiApps = document.getElementById("kpiApps");
+const kpiDevices = document.getElementById("kpiDevices");
+const kpiHealth = document.getElementById("kpiHealth");
+const kpiHealthText = document.getElementById("kpiHealthText");
+const dashboardTitle = document.getElementById("dashboardTitle");
+const dashboardSubtitle = document.getElementById("dashboardSubtitle");
+const actionTenants = document.getElementById("actionTenants");
+const actionApps = document.getElementById("actionApps");
+const actionDevices = document.getElementById("actionDevices");
+const actionGateways = document.getElementById("actionGateways");
 
 function setStatus(s) { statusEl.textContent = s; }
-function showErr(s) { errEl.textContent = s; errEl.style.display = "block"; }
-function clearErr() { errEl.style.display = "none"; errEl.textContent = ""; }
+function showErr(s) { errEl.textContent = s; errEl.style.display = "block"; state.healthOk = false; updateKpis(); }
+function clearErr() { errEl.style.display = "none"; errEl.textContent = ""; state.healthOk = true; updateKpis(); }
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]))}
 
 async function api(url) {
@@ -40,7 +54,9 @@ let state = {
   app: null,
   page: 1,
   limit: 25,
-  total: 0
+  total: 0,
+  metrics: { tenants: null, apps: null, devices: null, gateways: null },
+  healthOk: true
 };
 
 function offset() { return (state.page - 1) * state.limit; }
@@ -56,8 +72,17 @@ function setBack() {
   backBtn.disabled = (state.view === "tenants");
 }
 
-function setGateways() {
+function setNavState() {
+  appsBtn.disabled = !state.tenant;
+  devicesBtn.disabled = !state.app;
   gatewaysBtn.disabled = !state.tenant;
+
+  const buttons = [tenantsBtn, appsBtn, devicesBtn, gatewaysBtn];
+  buttons.forEach(btn => btn.classList.remove("active"));
+  if (state.view === "tenants") tenantsBtn.classList.add("active");
+  if (state.view === "apps") appsBtn.classList.add("active");
+  if (state.view === "devices") devicesBtn.classList.add("active");
+  if (state.view === "gateways") gatewaysBtn.classList.add("active");
 }
 
 function showDetails(title, obj) {
@@ -73,6 +98,43 @@ function clearDetails() {
   jsonEl.textContent = "";
 }
 
+function updateKpis() {
+  kpiTenants.textContent = state.metrics.tenants ?? "—";
+  kpiApps.textContent = state.metrics.apps ?? "—";
+  kpiDevices.textContent = state.metrics.devices ?? "—";
+  if (state.healthOk) {
+    kpiHealth.textContent = "Good";
+    kpiHealth.classList.remove("warn");
+    kpiHealth.classList.add("good");
+    kpiHealthText.textContent = "All services operational";
+  } else {
+    kpiHealth.textContent = "Attention";
+    kpiHealth.classList.remove("good");
+    kpiHealth.classList.add("warn");
+    kpiHealthText.textContent = "Check the error panel";
+  }
+}
+
+function setHeader() {
+  if (state.view === "tenants") {
+    dashboardTitle.textContent = "Admin Dashboard";
+    dashboardSubtitle.textContent = "System administration and overview";
+    listTitleEl.textContent = "Tenants";
+  } else if (state.view === "apps") {
+    dashboardTitle.textContent = "Applications";
+    dashboardSubtitle.textContent = `Tenant: ${state.tenant?.name || "Unknown"}`;
+    listTitleEl.textContent = "Applications";
+  } else if (state.view === "devices") {
+    dashboardTitle.textContent = "Devices";
+    dashboardSubtitle.textContent = `App: ${state.app?.name || "Unknown"}`;
+    listTitleEl.textContent = "Devices";
+  } else if (state.view === "gateways") {
+    dashboardTitle.textContent = "Gateways";
+    dashboardSubtitle.textContent = `Tenant: ${state.tenant?.name || "Unknown"}`;
+    listTitleEl.textContent = "Gateways";
+  }
+}
+
 async function loadTenants() {
   clearErr(); clearDetails();
   setStatus("Loading tenants…");
@@ -80,7 +142,8 @@ async function loadTenants() {
   const q = searchEl.value.trim();
   const data = await api(`/api/tenants?limit=${state.limit}&offset=${offset()}&search=${encodeURIComponent(q)}`);
   state.total = data.totalCount || 0;
-  setPager(); setBack(); setGateways();
+  state.metrics.tenants = data.totalCount ?? 0;
+  setPager(); setBack(); setNavState(); setHeader(); updateKpis();
   renderList(data.result || [], "tenant");
   setStatus("Ready");
 }
@@ -92,7 +155,8 @@ async function loadApps() {
   const q = searchEl.value.trim();
   const data = await api(`/api/tenants/${encodeURIComponent(state.tenant.id)}/applications?limit=${state.limit}&offset=${offset()}&search=${encodeURIComponent(q)}`);
   state.total = data.totalCount || 0;
-  setPager(); setBack(); setGateways();
+  state.metrics.apps = data.totalCount ?? 0;
+  setPager(); setBack(); setNavState(); setHeader(); updateKpis();
   renderList(data.result || [], "app");
   setStatus("Ready");
 }
@@ -104,7 +168,8 @@ async function loadDevices() {
   const q = searchEl.value.trim();
   const data = await api(`/api/applications/${encodeURIComponent(state.app.id)}/devices?limit=${state.limit}&offset=${offset()}&search=${encodeURIComponent(q)}`);
   state.total = data.totalCount || 0;
-  setPager(); setBack(); setGateways();
+  state.metrics.devices = data.totalCount ?? 0;
+  setPager(); setBack(); setNavState(); setHeader(); updateKpis();
   renderList(data.result || [], "device");
   setStatus("Ready");
 }
@@ -116,7 +181,8 @@ async function loadGateways() {
   const q = searchEl.value.trim();
   const data = await api(`/api/tenants/${encodeURIComponent(state.tenant.id)}/gateways?limit=${state.limit}&offset=${offset()}&search=${encodeURIComponent(q)}`);
   state.total = data.totalCount || 0;
-  setPager(); setBack(); setGateways();
+  state.metrics.gateways = data.totalCount ?? 0;
+  setPager(); setBack(); setNavState(); setHeader(); updateKpis();
   renderList(data.result || [], "gateway");
   setStatus("Ready");
 }
@@ -200,6 +266,20 @@ function reload() {
 
 // Buttons
 tenantsBtn.onclick = () => { state = { ...state, view: "tenants", page: 1, tenant: null, app: null }; loadTenants(); };
+appsBtn.onclick = () => {
+  if (!state.tenant) return;
+  state.view = "apps";
+  state.page = 1;
+  clearDetails();
+  loadApps();
+};
+devicesBtn.onclick = () => {
+  if (!state.app) return;
+  state.view = "devices";
+  state.page = 1;
+  clearDetails();
+  loadDevices();
+};
 gatewaysBtn.onclick = () => {
   if (!state.tenant) return;
   state.view = "gateways";
@@ -214,6 +294,11 @@ backBtn.onclick = () => {
   if (state.view === "gateways") { state.view = "tenants"; state.page = 1; state.tenant=null; return loadTenants(); }
 };
 logoutBtn.onclick = async () => { await fetch("/auth/logout", { method:"POST" }); location.href="/login.html"; };
+
+actionTenants.onclick = () => tenantsBtn.onclick();
+actionApps.onclick = () => appsBtn.onclick();
+actionDevices.onclick = () => devicesBtn.onclick();
+actionGateways.onclick = () => gatewaysBtn.onclick();
 
 prevBtn.onclick = () => { state.page = Math.max(1, state.page - 1); reload(); };
 nextBtn.onclick = () => { state.page = state.page + 1; reload(); };
