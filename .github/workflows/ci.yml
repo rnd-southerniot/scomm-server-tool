@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   ci:
@@ -43,4 +44,5 @@ jobs:
           npm run build --if-present
 
       - name: Health check
+        if: github.event_name == 'workflow_dispatch'
         run: make health || true
