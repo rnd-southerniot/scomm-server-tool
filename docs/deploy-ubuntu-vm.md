@@ -99,6 +99,8 @@ This repo can run an optional “ChirpStack Explorer” container as the `chirps
 docker compose --profile explorer up -d chirpstack_explorer
 ```
 
+Explorer provisioning requires a ChirpStack API key with write permissions. Store it in `secrets/chirpstack_explorer_token`.
+
 If you want host-level metrics on Linux, enable the optional profile:
 
 ```bash

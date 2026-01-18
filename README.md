@@ -59,6 +59,15 @@ docker compose --profile explorer up -d chirpstack_explorer
 ### Health Checks
 `make health` requires `jq` to be installed (used for Prometheus targets).
 
+### Explorer Dashboard & Provisioning
+The Explorer UI runs at `http://<host>:3002` and supports:
+- Tenants, Applications, Devices, Gateways browsing.
+- Provisioning (Create Tenant/Application/Device Profile/Gateway/Device/Device Keys) via the Provision modal.
+
+Requirements:
+- `CHIRPSTACK_EXPLORER_BASE_URL` points to ChirpStack REST API.
+- `CHIRPSTACK_EXPLORER_TOKEN` is a ChirpStack API key with provisioning rights (stored in `secrets/`).
+
 Deploying to an Ubuntu VM: see `docs/deploy-ubuntu-vm.md:1`.
 
 Optional services:
