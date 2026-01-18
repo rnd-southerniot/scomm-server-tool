@@ -72,6 +72,25 @@ async function chirpstackGet(pathname) {
   return JSON.parse(text);
 }
 
+async function chirpstackPost(pathname, payload) {
+  const url = `${CHIRPSTACK_BASE_URL}${pathname}`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${CHIRPSTACK_TOKEN}`,
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "User-Agent": "southerniot-chirpstack-explorer/1.1"
+    },
+    body: JSON.stringify(payload || {})
+  });
+
+  const text = await res.text();
+  if (!res.ok) throw new Error(`ChirpStack ${res.status} ${res.statusText}: ${text}`);
+  if (!text) return {};
+  return JSON.parse(text);
+}
+
 function requireAuth(req, res, next) {
   if (req.session?.user) return next();
   res.status(401).json({ error: "Unauthorized" });
@@ -198,6 +217,63 @@ app.get("/api/gateways/:gatewayId", requireAuth, async (req, res) => {
     res.json(data);
   } catch (e) {
     res.status(500).json({ error: "Failed to fetch gateway detail", message: e.message });
+  }
+});
+
+// ---------- Provisioning (auth-protected) ----------
+app.post("/api/tenants", requireAuth, async (req, res) => {
+  try {
+    const data = await chirpstackPost("/api/tenants", req.body);
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to create tenant", message: e.message });
+  }
+});
+
+app.post("/api/applications", requireAuth, async (req, res) => {
+  try {
+    const data = await chirpstackPost("/api/applications", req.body);
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to create application", message: e.message });
+  }
+});
+
+app.post("/api/device-profiles", requireAuth, async (req, res) => {
+  try {
+    const data = await chirpstackPost("/api/device-profiles", req.body);
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to create device profile", message: e.message });
+  }
+});
+
+app.post("/api/gateways", requireAuth, async (req, res) => {
+  try {
+    const data = await chirpstackPost("/api/gateways", req.body);
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to create gateway", message: e.message });
+  }
+});
+
+app.post("/api/devices", requireAuth, async (req, res) => {
+  try {
+    const data = await chirpstackPost("/api/devices", req.body);
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to create device", message: e.message });
+  }
+});
+
+app.post("/api/devices/keys", requireAuth, async (req, res) => {
+  try {
+    const devEui = req.body?.deviceKeys?.devEui;
+    if (!devEui) return res.status(400).json({ error: "deviceKeys.devEui is required" });
+    const data = await chirpstackPost(`/api/devices/${encodeURIComponent(devEui)}/keys`, req.body);
+    res.json(data);
+  } catch (e) {
+    res.status(500).json({ error: "Failed to create device keys", message: e.message });
   }
 });
 

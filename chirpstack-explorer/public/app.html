@@ -170,11 +170,78 @@
       text-align: left;
     }
     .actions button:hover { border-color: var(--p-300); background: var(--p-100); }
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(17,24,39,0.45);
+      z-index: 50;
+      padding: 24px;
+    }
+    .modal.open { display: flex; }
+    .modal-card {
+      width: 100%;
+      max-width: 720px;
+      background: var(--bg);
+      border-radius: var(--r-lg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-hover);
+      padding: 20px;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+    .field label { font-size: 12px; color: var(--text-700); letter-spacing: 0.02em; }
+    .field input, .field select, .field textarea {
+      height: 40px;
+      padding: 0 10px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      font-family: inherit;
+    }
+    .field textarea { height: 90px; padding: 8px 10px; }
+    .field .checkbox {
+      height: auto;
+      width: auto;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .result {
+      margin-top: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 10px;
+      max-height: 180px;
+      overflow: auto;
+      font-size: 12px;
+    }
     @media (max-width: 980px) {
       .layout { grid-template-columns: 1fr; }
       .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
       .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .grid-two { grid-template-columns: 1fr; }
+      .modal-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
       .kpi-row { grid-template-columns: 1fr; }
@@ -202,6 +269,7 @@
         <div class="muted" id="crumbs">Tenants</div>
         <div class="topbar-actions">
           <input id="search" class="input" placeholder="Search…" />
+          <button id="provisionBtn" class="btn btn-primary">Provision</button>
           <button id="backBtn" class="btn" disabled>Back</button>
           <button id="logoutBtn" class="btn btn-danger">Logout</button>
           <span class="muted" id="status">Idle</span>
@@ -266,6 +334,34 @@
         <pre class="muted" id="json" style="overflow:auto;"></pre>
       </div>
     </main>
+  </div>
+
+  <div class="modal" id="provisionModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <strong id="provisionTitle">Provision</strong>
+          <div class="muted">Create tenants, applications, devices, and gateways</div>
+        </div>
+        <button id="closeProvision" class="btn">Close</button>
+      </div>
+
+      <div class="field">
+        <label for="provisionAction">Action</label>
+        <select id="provisionAction"></select>
+      </div>
+
+      <div class="modal-grid" id="provisionFields"></div>
+
+      <div class="modal-footer">
+        <span class="muted" id="provisionStatus">Ready</span>
+        <div>
+          <button id="submitProvision" class="btn btn-primary">Create</button>
+        </div>
+      </div>
+
+      <pre class="result" id="provisionResult" style="display:none;"></pre>
+    </div>
   </div>
 
   <script src="/app.js"></script>
