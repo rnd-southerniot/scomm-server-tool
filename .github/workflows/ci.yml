@@ -1,0 +1,46 @@
+name: CI Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies for lint tools
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y shellcheck yamllint
+
+      - name: Validate Docker Compose files
+        run: |
+          docker compose -f docker-compose.yml config
+          docker compose -f docker-compose.yml -f docker-compose.chirpstack.yml config
+
+      - name: Shell lint scripts
+        run: |
+          if [ -d scripts ]; then
+            shellcheck $(find scripts -type f -name "*.sh")
+          fi
+
+      - name: YAML lint
+        run: yamllint .
+
+      - name: Build ChirpStack Explorer
+        working-directory: chirpstack-explorer
+        run: |
+          npm ci
+          npm run build --if-present
+
+      - name: Health check
+        run: make health || true
