@@ -16,6 +16,9 @@ docker compose exec -T redis redis-cli ping
 printf 'Prometheus: '
 curl -sf http://127.0.0.1:9090/-/healthy >/dev/null && echo OK
 
+printf 'Prometheus targets: '
+curl -sf http://127.0.0.1:9090/api/v1/targets | jq -e '.status == "success"' >/dev/null && echo OK
+
 printf 'Alertmanager: '
 curl -sf http://127.0.0.1:9093/-/healthy >/dev/null && echo OK
 
