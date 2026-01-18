@@ -56,6 +56,9 @@ docker compose -f docker-compose.yml up -d
 docker compose --profile explorer up -d chirpstack_explorer
 ```
 
+### Health Checks
+`make health` requires `jq` to be installed (used for Prometheus targets).
+
 Deploying to an Ubuntu VM: see `docs/deploy-ubuntu-vm.md:1`.
 
 Optional services:
