@@ -10,7 +10,7 @@ const provisionFields = document.getElementById("provisionFields");
 const provisionStatus = document.getElementById("provisionStatus");
 const provisionResult = document.getElementById("provisionResult");
 const closeProvision = document.getElementById("closeProvision");
-const submitProvision = document.getElementById("submitProvision");
+const submitProvisionBtn = document.getElementById("submitProvision");
 
 const tenantsBtn = document.getElementById("tenantsBtn");
 const appsBtn = document.getElementById("appsBtn");
@@ -283,7 +283,7 @@ function collectProvisionValues() {
   return { values, missing };
 }
 
-async function submitProvision() {
+async function runProvision() {
   const actionKey = provisionAction.value;
   const cfg = provisionConfig[actionKey];
   if (!cfg) return;
@@ -527,4 +527,4 @@ provisionBtn.onclick = () => {
 };
 closeProvision.onclick = () => provisionModal.classList.remove("open");
 provisionAction.onchange = () => renderProvisionFields(provisionAction.value);
-submitProvision.onclick = () => submitProvision();
+submitProvisionBtn.onclick = () => runProvision();
