@@ -4,6 +4,7 @@ const listEl = document.getElementById("list");
 const crumbsEl = document.getElementById("crumbs");
 
 const tenantsBtn = document.getElementById("tenantsBtn");
+const gatewaysBtn = document.getElementById("gatewaysBtn");
 const backBtn = document.getElementById("backBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const searchEl = document.getElementById("search");
@@ -55,6 +56,10 @@ function setBack() {
   backBtn.disabled = (state.view === "tenants");
 }
 
+function setGateways() {
+  gatewaysBtn.disabled = !state.tenant;
+}
+
 function showDetails(title, obj) {
   details.style.display = "block";
   detailsTitle.textContent = title;
@@ -75,7 +80,7 @@ async function loadTenants() {
   const q = searchEl.value.trim();
   const data = await api(`/api/tenants?limit=${state.limit}&offset=${offset()}&search=${encodeURIComponent(q)}`);
   state.total = data.totalCount || 0;
-  setPager(); setBack();
+  setPager(); setBack(); setGateways();
   renderList(data.result || [], "tenant");
   setStatus("Ready");
 }
@@ -87,7 +92,7 @@ async function loadApps() {
   const q = searchEl.value.trim();
   const data = await api(`/api/tenants/${encodeURIComponent(state.tenant.id)}/applications?limit=${state.limit}&offset=${offset()}&search=${encodeURIComponent(q)}`);
   state.total = data.totalCount || 0;
-  setPager(); setBack();
+  setPager(); setBack(); setGateways();
   renderList(data.result || [], "app");
   setStatus("Ready");
 }
@@ -99,7 +104,7 @@ async function loadDevices() {
   const q = searchEl.value.trim();
   const data = await api(`/api/applications/${encodeURIComponent(state.app.id)}/devices?limit=${state.limit}&offset=${offset()}&search=${encodeURIComponent(q)}`);
   state.total = data.totalCount || 0;
-  setPager(); setBack();
+  setPager(); setBack(); setGateways();
   renderList(data.result || [], "device");
   setStatus("Ready");
 }
@@ -111,7 +116,7 @@ async function loadGateways() {
   const q = searchEl.value.trim();
   const data = await api(`/api/tenants/${encodeURIComponent(state.tenant.id)}/gateways?limit=${state.limit}&offset=${offset()}&search=${encodeURIComponent(q)}`);
   state.total = data.totalCount || 0;
-  setPager(); setBack();
+  setPager(); setBack(); setGateways();
   renderList(data.result || [], "gateway");
   setStatus("Ready");
 }
@@ -195,6 +200,13 @@ function reload() {
 
 // Buttons
 tenantsBtn.onclick = () => { state = { ...state, view: "tenants", page: 1, tenant: null, app: null }; loadTenants(); };
+gatewaysBtn.onclick = () => {
+  if (!state.tenant) return;
+  state.view = "gateways";
+  state.page = 1;
+  clearDetails();
+  loadGateways();
+};
 backBtn.onclick = () => {
   clearDetails();
   if (state.view === "devices") { state.view = "apps"; state.page = 1; return loadApps(); }
