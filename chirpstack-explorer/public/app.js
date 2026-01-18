@@ -154,73 +154,119 @@ const provisionConfig = {
     label: "Create Tenant",
     endpoint: "/api/tenants",
     fields: [
-      { key: "name", label: "Name", required: true, placeholder: "SouthernIoT RnD" },
-      { key: "description", label: "Description", placeholder: "Tenant description" },
-      { key: "canHaveGateways", label: "Can Have Gateways", type: "checkbox", value: true },
-      { key: "maxDeviceCount", label: "Max Device Count (0 = unlimited)", type: "number", value: 0 },
-      { key: "maxGatewayCount", label: "Max Gateway Count (0 = unlimited)", type: "number", value: 0 }
+      { key: "name", label: "Name", required: true, minLength: 3, placeholder: "SouthernIoT RnD" },
+      { key: "description", label: "Description", required: true, minLength: 3, placeholder: "Tenant description" }
     ],
-    wrap(values) { return { tenant: values }; }
+    wrap(values) {
+      return {
+        tenant: {
+          ...values,
+          canHaveGateways: true,
+          maxDeviceCount: 0,
+          maxGatewayCount: 0
+        }
+      };
+    }
   },
   application: {
     label: "Create Application",
     endpoint: "/api/applications",
     fields: [
-      { key: "tenantId", label: "Tenant ID", required: true, placeholder: "uuid" },
-      { key: "name", label: "Name", required: true, placeholder: "LoRaWAN App" },
-      { key: "description", label: "Description", placeholder: "Application description" }
+      { key: "name", label: "Application Name", required: true, minLength: 3, placeholder: "LoRaWAN App" }
     ],
-    wrap(values) { return { application: values }; }
+    wrap(values) {
+      return { application: { ...values, tenantId: state.tenant?.id || "", description: "" } };
+    }
   },
   deviceProfile: {
     label: "Create Device Profile",
     endpoint: "/api/device-profiles",
     fields: [
-      { key: "tenantId", label: "Tenant ID", required: true, placeholder: "uuid" },
-      { key: "name", label: "Name", required: true, placeholder: "Generic EU868" },
-      { key: "region", label: "Region", required: true, placeholder: "EU868", value: "EU868" },
-      { key: "macVersion", label: "MAC Version", required: true, placeholder: "LORAWAN_1_0_3", value: "LORAWAN_1_0_3" },
-      { key: "regParamsRevision", label: "Reg Params", required: true, placeholder: "RP002_1_0_3", value: "RP002_1_0_3" },
-      { key: "supportsOtaa", label: "Supports OTAA", type: "checkbox", value: true },
-      { key: "supportsClassB", label: "Supports Class B", type: "checkbox", value: false },
-      { key: "supportsClassC", label: "Supports Class C", type: "checkbox", value: false }
+      { key: "name", label: "Name", required: true, minLength: 3, placeholder: "Generic EU868" },
+      {
+        key: "region",
+        label: "Region",
+        required: true,
+        type: "select",
+        options: ["AS923", "EU868", "US915", "IN865"],
+        value: "EU868"
+      },
+      {
+        key: "lorawanVersion",
+        label: "LoRaWAN Version",
+        required: true,
+        type: "select",
+        options: ["1.0.3", "1.0.4", "1.1.0"],
+        value: "1.0.3"
+      }
     ],
-    wrap(values) { return { deviceProfile: values }; }
+    wrap(values) {
+      const macVersionMap = {
+        "1.0.3": "LORAWAN_1_0_3",
+        "1.0.4": "LORAWAN_1_0_4",
+        "1.1.0": "LORAWAN_1_1_0"
+      };
+      const regParamsMap = {
+        "1.0.3": "RP002_1_0_3",
+        "1.0.4": "RP002_1_0_4",
+        "1.1.0": "RP002_1_0_4"
+      };
+      return {
+        deviceProfile: {
+          name: values.name,
+          tenantId: state.tenant?.id || "",
+          region: values.region,
+          macVersion: macVersionMap[values.lorawanVersion] || "LORAWAN_1_0_3",
+          regParamsRevision: regParamsMap[values.lorawanVersion] || "RP002_1_0_3",
+          supportsOtaa: true,
+          supportsClassB: false,
+          supportsClassC: false,
+          adrAlgorithmId: "default"
+        }
+      };
+    }
   },
   gateway: {
     label: "Add Gateway",
     endpoint: "/api/gateways",
     fields: [
-      { key: "tenantId", label: "Tenant ID", required: true, placeholder: "uuid" },
-      { key: "gatewayId", label: "Gateway ID", required: true, placeholder: "a1b2c3d4..." },
-      { key: "name", label: "Name", required: true, placeholder: "Factory Gateway" },
-      { key: "description", label: "Description", placeholder: "Gateway description" }
+      { key: "name", label: "Gateway Name", required: true, minLength: 3, placeholder: "Factory Gateway" },
+      { key: "gatewayId", label: "Gateway EUI", required: true, pattern: /^[A-Fa-f0-9]{16}$/, placeholder: "0102030405060708" }
     ],
-    wrap(values) { return { gateway: values }; }
+    wrap(values) {
+      return {
+        gateway: {
+          tenantId: state.tenant?.id || "",
+          name: values.name,
+          gatewayId: values.gatewayId,
+          description: "",
+          statsInterval: 30
+        }
+      };
+    }
   },
   device: {
     label: "Add Device",
     endpoint: "/api/devices",
     fields: [
-      { key: "applicationId", label: "Application ID", required: true, placeholder: "uuid" },
-      { key: "deviceProfileId", label: "Device Profile ID", required: true, placeholder: "uuid" },
-      { key: "devEui", label: "DevEUI", required: true, placeholder: "0102030405060708" },
-      { key: "name", label: "Name", required: true, placeholder: "Sensor A1" },
-      { key: "description", label: "Description", placeholder: "Device description" },
-      { key: "isDisabled", label: "Disabled", type: "checkbox", value: false },
-      { key: "skipFcntCheck", label: "Skip FCnt Check", type: "checkbox", value: false }
+      { key: "name", label: "Device Name", required: true, minLength: 3, placeholder: "Sensor A1" },
+      { key: "devEui", label: "DevEUI", required: true, pattern: /^[A-Fa-f0-9]{16}$/, placeholder: "0102030405060708" },
+      { key: "deviceProfileId", label: "Device Profile ID", required: true, pattern: /^[A-Fa-f0-9]{32}$|^[A-Fa-f0-9]{8}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4}-[A-Fa-f0-9]{12}$/, placeholder: "uuid" },
+      { key: "appKey", label: "App Key (optional)", pattern: /^[A-Fa-f0-9]{32}$/, placeholder: "32 hex chars" }
     ],
-    wrap(values) { return { device: values }; }
-  },
-  deviceKeys: {
-    label: "Create Device Keys",
-    endpoint: "/api/devices/keys",
-    fields: [
-      { key: "devEui", label: "DevEUI", required: true, placeholder: "0102030405060708" },
-      { key: "nwkKey", label: "NwkKey", required: true, placeholder: "16-byte hex" },
-      { key: "appKey", label: "AppKey", required: true, placeholder: "16-byte hex" }
-    ],
-    wrap(values) { return { deviceKeys: values }; }
+    wrap(values) {
+      const deviceValues = {
+        name: values.name,
+        devEui: values.devEui,
+        applicationId: state.app?.id || "",
+        deviceProfileId: values.deviceProfileId,
+        isDisabled: false,
+        skipFcntCheck: true,
+        description: ""
+      };
+      delete deviceValues.appKey;
+      return { device: deviceValues, deviceKeys: values.appKey ? { appKey: values.appKey } : null };
+    }
   }
 };
 
@@ -241,6 +287,20 @@ function renderProvisionFields(actionKey) {
       input.type = "checkbox";
       input.className = "checkbox";
       input.checked = Boolean(field.value);
+    } else if (field.type === "select") {
+      input = document.createElement("select");
+      (field.options || []).forEach((opt) => {
+        const option = document.createElement("option");
+        if (typeof opt === "string") {
+          option.value = opt;
+          option.textContent = opt;
+        } else {
+          option.value = opt.value;
+          option.textContent = opt.label;
+        }
+        input.appendChild(option);
+      });
+      if (field.value) input.value = field.value;
     } else if (field.type === "textarea") {
       input = document.createElement("textarea");
       input.value = field.value || "";
@@ -253,6 +313,12 @@ function renderProvisionFields(actionKey) {
     input.id = `field-${field.key}`;
     input.dataset.key = field.key;
     input.dataset.type = field.type || "text";
+    if (field.pattern) {
+      input.dataset.pattern = field.pattern.source;
+      input.dataset.patternFlags = field.pattern.flags || "";
+    }
+    if (field.minLength) input.dataset.minLength = String(field.minLength);
+    if (field.options) input.dataset.options = JSON.stringify(field.options);
     input.dataset.required = field.required ? "1" : "0";
     wrapper.appendChild(label);
     wrapper.appendChild(input);
@@ -283,17 +349,77 @@ function collectProvisionValues() {
   return { values, missing };
 }
 
+function validateProvision(values, cfg) {
+  const errors = [];
+  cfg.fields.forEach((field) => {
+    const value = values[field.key];
+    const label = field.label || field.key;
+    if (field.required) {
+      const empty = value === "" || value === null || value === undefined;
+      if (empty) errors.push(`${label} is required`);
+    }
+    if (typeof value === "string" && value) {
+      if (field.minLength && value.length < field.minLength) {
+        errors.push(`${label} must be at least ${field.minLength} chars`);
+      }
+      if (field.pattern && !field.pattern.test(value)) {
+        errors.push(`${label} is invalid`);
+      }
+      if (field.options) {
+        const options = field.options.map((opt) => (typeof opt === "string" ? opt : opt.value));
+        if (!options.includes(value)) errors.push(`${label} is invalid`);
+      }
+    }
+  });
+  return errors;
+}
+
 async function runProvision() {
   const actionKey = provisionAction.value;
   const cfg = provisionConfig[actionKey];
   if (!cfg) return;
+  if (actionKey === "application" && !state.tenant?.id) {
+    provisionStatus.textContent = "Select a tenant before creating an application.";
+    return;
+  }
+  if ((actionKey === "deviceProfile" || actionKey === "gateway") && !state.tenant?.id) {
+    provisionStatus.textContent = "Select a tenant before creating this item.";
+    return;
+  }
+  if (actionKey === "device" && !state.app?.id) {
+    provisionStatus.textContent = "Select an application before creating a device.";
+    return;
+  }
   const { values, missing } = collectProvisionValues();
   if (missing.length) {
     provisionStatus.textContent = `Missing required: ${missing.join(", ")}`;
     return;
   }
+  const errors = validateProvision(values, cfg);
+  if (errors.length) {
+    provisionStatus.textContent = `Invalid: ${errors.join("; ")}`;
+    return;
+  }
   provisionStatus.textContent = "Submitting…";
   try {
+    if (actionKey === "device") {
+      const wrapped = cfg.wrap(values);
+      const res = await api(cfg.endpoint, { method: "POST", body: { device: wrapped.device } });
+      if (wrapped.deviceKeys) {
+        const devEui = wrapped.device?.devEui;
+        const deviceKeys = {
+          devEui,
+          nwkKey: wrapped.deviceKeys.appKey,
+          appKey: wrapped.deviceKeys.appKey
+        };
+        await api("/api/devices/keys", { method: "POST", body: { deviceKeys } });
+      }
+      provisionStatus.textContent = "Created";
+      provisionResult.textContent = JSON.stringify(res || { ok: true }, null, 2);
+      provisionResult.style.display = "block";
+      await refreshAfterCreate(actionKey, values);
+      return;
+    }
     const body = cfg.wrap(values);
     const res = await api(cfg.endpoint, { method: "POST", body });
     provisionStatus.textContent = "Created";
@@ -315,17 +441,14 @@ async function refreshAfterCreate(actionKey, values) {
   } else if (actionKey === "application") {
     state.view = "apps";
     state.page = 1;
-    state.tenant = { id: values.tenantId, name: values.tenantId };
     await loadApps();
   } else if (actionKey === "device") {
     state.view = "devices";
     state.page = 1;
-    state.app = { id: values.applicationId, name: values.applicationId };
     await loadDevices();
   } else if (actionKey === "gateway") {
     state.view = "gateways";
     state.page = 1;
-    state.tenant = { id: values.tenantId, name: values.tenantId };
     await loadGateways();
   }
 }
