@@ -4,63 +4,142 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ChirpStack Explorer</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-    crossorigin="anonymous"
-  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    body { font-family: system-ui, Arial; }
-    .top { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    input { min-width: 260px; }
-    .muted { color:#666; font-size: 13px; }
+    :root{
+      --p-900:#2E3478; --p-700:#3B4A96; --p-500:#4A6FA8; --p-300:#6F8FC8; --p-100:#E9EFF9;
+      --bg:#FFFFFF; --surface:#F8FAFC; --border:#E5E7EB;
+      --text-900:#111827; --text-700:#374151;
+      --success:#22C55E; --warn:#F59E0B; --error:#EF4444; --info:#38BDF8;
+      --r-sm:10px; --r-md:16px; --r-lg:24px;
+      --shadow:0 6px 24px rgba(17,24,39,0.08);
+      --shadow-hover:0 10px 30px rgba(17,24,39,0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, sans-serif;
+      color: var(--text-900);
+      background:
+        radial-gradient(600px 300px at 85% -10%, rgba(74,111,168,0.18), transparent 60%),
+        radial-gradient(500px 260px at -10% 0%, rgba(46,52,120,0.12), transparent 60%),
+        var(--surface);
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: 14px 18px;
+      box-shadow: var(--shadow);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand img { height: 28px; }
+    .brand-title { font-weight: 700; letter-spacing: -0.01em; }
+    .controls {
+      display:flex;
+      gap:10px;
+      flex-wrap: wrap;
+      align-items:center;
+    }
+    .btn {
+      border: 1px solid var(--p-300);
+      background: var(--bg);
+      color: var(--p-900);
+      padding: 8px 14px;
+      border-radius: var(--r-sm);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: box-shadow 0.2s ease, transform 0.2s ease, filter 0.2s ease;
+    }
+    .btn-primary { background: var(--p-900); color: #fff; border-color: var(--p-900); }
+    .btn-danger { border-color: #f3b4b4; color: #b91c1c; background: #fff5f5; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+    .btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(111,143,200,0.35); }
+    .input {
+      min-width: 260px;
+      height: 44px;
+      padding: 0 12px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-900);
+    }
+    .input:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(111,143,200,0.35); }
+    .muted { color: var(--text-700); font-size: 13px; }
+    .card {
+      margin-top: 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
     .list { margin:0; padding-left: 18px; }
-    li { margin: 8px 0; }
-    .link { color:#0b57d0; cursor:pointer; text-decoration: underline; }
-    code { background:#f3f3f3; padding:2px 6px; border-radius: 6px; }
-    .err { color:#b00020; background:#fff1f1; padding:10px; border-radius:10px; display:none; white-space:pre-wrap; }
+    li { margin: 10px 0; }
+    .link { color: var(--p-700); cursor:pointer; text-decoration: none; font-weight: 600; }
+    .link:hover { text-decoration: underline; }
+    code { background: var(--p-100); padding:2px 6px; border-radius: 6px; }
+    .err { color:#b00020; background:#fff1f1; padding:12px; border-radius:10px; display:none; white-space:pre-wrap; }
     .pager { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top: 10px; }
     .kpi { display:flex; gap:12px; flex-wrap:wrap; }
-    .kpi > div { border:1px solid #eee; border-radius: 10px; padding: 10px 12px; min-width: 200px; }
+    .kpi > div { border:1px solid var(--border); border-radius: var(--r-md); padding: 10px 12px; min-width: 200px; }
     .kpi strong { font-size: 20px; display:block; }
   </style>
 </head>
-<body class="bg-light">
-  <div class="container-fluid py-3">
-    <div class="top">
-      <button id="tenantsBtn" class="btn btn-outline-primary">Tenants</button>
-      <button id="gatewaysBtn" class="btn btn-outline-primary" disabled>Gateways</button>
-      <button id="backBtn" class="btn btn-outline-secondary" disabled>Back</button>
-      <button id="logoutBtn" class="btn btn-outline-danger">Logout</button>
-      <input id="search" class="form-control w-auto" placeholder="Search…" />
-      <span class="muted" id="status">Idle</span>
-    </div>
-
-    <div class="err mt-3" id="err"></div>
-
-    <div class="card mt-3 shadow-sm">
-      <div class="card-body">
-        <div class="muted" id="crumbs">Tenants</div>
-
-        <div class="pager">
-          <button id="prevBtn" class="btn btn-sm btn-outline-secondary">Prev</button>
-          <button id="nextBtn" class="btn btn-sm btn-outline-secondary">Next</button>
-          <span class="muted">Page: <span id="pageNum">1</span></span>
-          <span class="muted">Total: <span id="total">0</span></span>
-        </div>
-
-        <ul class="list mt-2" id="list"></ul>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">
+        <img src="/assets/southerniot-logo.png" alt="SouthernIoT" />
+        <div class="brand-title">SouthernIoT Explorer</div>
+      </div>
+      <div class="controls">
+        <button id="tenantsBtn" class="btn btn-primary">Tenants</button>
+        <button id="gatewaysBtn" class="btn" disabled>Gateways</button>
+        <button id="backBtn" class="btn" disabled>Back</button>
+        <button id="logoutBtn" class="btn btn-danger">Logout</button>
+        <input id="search" class="input" placeholder="Search…" />
+        <span class="muted" id="status">Idle</span>
       </div>
     </div>
 
-    <div class="card mt-3 shadow-sm" id="details" style="display:none;">
-      <div class="card-body">
-        <div class="muted" id="detailsTitle">Details</div>
-        <div class="kpi" id="kpis"></div>
-        <div class="muted" id="samples"></div>
-        <pre class="muted" id="json" style="overflow:auto;"></pre>
+    <div class="err" id="err"></div>
+
+    <div class="card">
+      <div class="muted" id="crumbs">Tenants</div>
+
+      <div class="pager">
+        <button id="prevBtn" class="btn">Prev</button>
+        <button id="nextBtn" class="btn">Next</button>
+        <span class="muted">Page: <span id="pageNum">1</span></span>
+        <span class="muted">Total: <span id="total">0</span></span>
       </div>
+
+      <ul class="list" id="list"></ul>
+    </div>
+
+    <div class="card" id="details" style="display:none;">
+      <div class="muted" id="detailsTitle">Details</div>
+      <div class="kpi" id="kpis"></div>
+      <div class="muted" id="samples"></div>
+      <pre class="muted" id="json" style="overflow:auto;"></pre>
     </div>
   </div>
 

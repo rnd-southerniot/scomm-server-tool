@@ -4,19 +4,84 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    body { font-family: system-ui, Arial; margin: 24px; max-width: 420px; }
-    input, button { padding: 10px; width: 100%; margin: 8px 0; }
+    :root{
+      --p-900:#2E3478; --p-700:#3B4A96; --p-500:#4A6FA8; --p-300:#6F8FC8; --p-100:#E9EFF9;
+      --bg:#FFFFFF; --surface:#F8FAFC; --border:#E5E7EB;
+      --text-900:#111827; --text-700:#374151;
+      --r-sm:10px; --r-md:16px; --r-lg:24px;
+      --shadow:0 6px 24px rgba(17,24,39,0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Inter", system-ui, sans-serif;
+      margin: 0;
+      background:
+        radial-gradient(600px 300px at 85% -10%, rgba(74,111,168,0.18), transparent 60%),
+        radial-gradient(500px 260px at -10% 0%, rgba(46,52,120,0.12), transparent 60%),
+        var(--surface);
+      color: var(--text-900);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      box-shadow: var(--shadow);
+      padding: 24px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .brand img { height: 28px; }
+    .brand-title { font-weight: 700; }
+    .label { font-size: 12px; color: var(--text-700); letter-spacing: 0.02em; text-transform: uppercase; }
+    input, button { width: 100%; margin: 8px 0; }
+    input {
+      height: 44px;
+      padding: 0 12px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+    }
+    input:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(111,143,200,0.35); }
+    button {
+      height: 44px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--p-900);
+      background: var(--p-900);
+      color: #fff;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+    }
     .err { color: #b00020; background: #fff1f1; padding: 10px; border-radius: 8px; display:none; }
   </style>
 </head>
 <body>
-  <h2>ChirpStack Explorer Login</h2>
-  <div class="err" id="err"></div>
+  <div class="card">
+    <div class="brand">
+      <img src="/assets/southerniot-logo.png" alt="SouthernIoT" />
+      <div class="brand-title">SouthernIoT Explorer</div>
+    </div>
+    <div class="label">Sign in</div>
+    <div class="err" id="err"></div>
 
-  <input id="u" placeholder="Username" />
-  <input id="p" placeholder="Password" type="password" />
-  <button id="btn">Login</button>
+    <input id="u" placeholder="Username" />
+    <input id="p" placeholder="Password" type="password" />
+    <button id="btn">Login</button>
+  </div>
 
   <script>
     const err = document.getElementById("err");
